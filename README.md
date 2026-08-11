@@ -40,20 +40,20 @@ Examples:
 ├── docs/
 │   ├── ai-context.md
 │   └── commands.md
-└── scripts/
+└── bin/
     └── push-changes
 ```
 
 See [`docs/commands.md`](docs/commands.md) for command usage and [`docs/ai-context.md`](docs/ai-context.md) for agent context.
 
-As the repository grows, executable commands should live under `bin/` and shared implementation code under `lib/` where needed.
+Shared implementation code should live under `lib/` where needed.
 
 ## Usage
 
-Run commands directly or add `scripts/` to `PATH`:
+Run commands directly or add `bin/` to `PATH`:
 
 ```sh
-/path/to/personal-automation/scripts/push-changes
+/path/to/personal-automation/bin/push-changes
 ```
 
 ## Boundary

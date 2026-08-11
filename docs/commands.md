@@ -9,7 +9,7 @@ Implemented commands and candidates.
 Stages all changes, generates a commit message with Ollama, asks for confirmation, commits, rebases from `origin`, and pushes the current branch.
 
 ```sh
-scripts/push-changes
+bin/push-changes
 ```
 
 #### Requirements

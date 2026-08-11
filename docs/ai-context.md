@@ -21,7 +21,7 @@ This repository contains semantic commands for recurring personal workflows. Ter
 
 ## Current command
 
-`scripts/push-changes`:
+`bin/push-changes`:
 
 1. Runs `git add -A` in the current repository.
 2. Generates a commit message from the staged diff using local Ollama.
@@ -35,6 +35,6 @@ The default model is `qwen2.5-coder:7b`; `GIT_COMMIT_MODEL` overrides it. Preser
 * Read the affected command and `docs/commands.md` before changing behavior.
 * Preserve unrelated working-tree changes.
 * Update documentation with command changes.
-* Validate shell scripts with `bash -n scripts/<command>`.
+* Validate shell commands with `bash -n bin/<command>`.
 * Do not test with a real commit, rebase, or push unless explicitly requested.
 * Do not assume an undefined test, installation, release, or compatibility policy.
