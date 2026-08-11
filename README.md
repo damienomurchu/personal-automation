@@ -38,13 +38,23 @@ Examples:
 ```text
 .
 ├── docs/
+│   ├── ai-context.md
 │   └── commands.md
-└── ...
+└── scripts/
+    └── push-changes
 ```
 
-`docs/commands.md` tracks the command vocabulary, including commands that have not yet been implemented.
+See [`docs/commands.md`](docs/commands.md) for command usage and [`docs/ai-context.md`](docs/ai-context.md) for agent context.
 
 As the repository grows, executable commands should live under `bin/` and shared implementation code under `lib/` where needed.
+
+## Usage
+
+Run commands directly or add `scripts/` to `PATH`:
+
+```sh
+/path/to/personal-automation/scripts/push-changes
+```
 
 ## Boundary
 
@@ -53,4 +63,3 @@ This repository defines **what I can make my environment do**.
 Machine configuration belongs in `dotfiles`.
 
 Personal infrastructure configuration belongs in `personal-cloud`.
-
