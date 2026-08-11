@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+MODEL="${GIT_COMMIT_MODEL:-qwen2.5-coder:7b}"
+
+# Ensure we're inside a Git repository.
+git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
+    echo "Not inside a Git repository."
+    exit 1
+}
+
+branch="$(git branch --show-current)"
+
+if [[ -z "$branch" ]]; then
+    echo "Detached HEAD; refusing to ship."
+    exit 1
+fi
+
+# Stage all changes.
+git add -A
+
+if git diff --cached --quiet; then
+    echo "No changes to commit."
+    exit 0
+fi
+
+diff="$(git diff --cached --no-color)"
+
+prompt="$(cat <<EOF
+Generate a concise Git commit message for the following staged diff.
+
+Requirements:
+- Return only the commit message.
+- Use a single-line imperative subject.
+- Keep it concise.
+- Describe the intent of the change, not individual diff mechanics.
+- Do not use Markdown.
+- Do not add quotes.
+- Do not invent information not present in the diff.
+
+Diff:
+
+$diff
+EOF
+)"
+
+commit_message="$(
+    printf '%s' "$prompt" |
+        ollama run "$MODEL" |
+        head -n 1 |
+        sed -e 's/^["`]*//' -e 's/["`]*$//'
+)"
+
+if [[ -z "$commit_message" ]]; then
+    echo "Failed to generate commit message."
+    exit 1
+fi
+
+while true; do
+    echo
+    echo "Files:"
+
+    while IFS=$'\t' read -r status path1 path2; do
+        type="${status:0:1}"
+
+        case "$type" in
+            R | C)
+                printf ' %s %s -> %s\n' "$type" "$path1" "$path2"
+                ;;
+            *)
+                printf ' %s %s\n' "$type" "$path1"
+                ;;
+        esac
+    done < <(git diff --cached --name-status)
+
+    echo
+    echo "Commit:"
+    echo " $commit_message"
+    echo
+
+    read -r -p "Commit and push? [Y/e/n] " response
+
+    case "${response:-Y}" in
+        [yY] | [yY][eE][sS])
+            break
+            ;;
+
+        [eE])
+            echo
+            read -r -e -p "Commit message: " -i "$commit_message" edited_message
+
+            if [[ -n "$edited_message" ]]; then
+                commit_message="$edited_message"
+            fi
+            ;;
+
+        [nN] | [nN][oO])
+            echo "Aborted."
+            exit 1
+            ;;
+
+        *)
+            echo "Enter y, e, or n."
+            ;;
+    esac
+done
+
+echo
+git commit -m "$commit_message"
+
+echo
+echo "Rebasing onto origin/$branch..."
+git pull --rebase origin "$branch"
+
+echo
+echo "Pushing origin/$branch..."
+git push origin "$branch"
+
+echo
+echo "Shipped $branch."

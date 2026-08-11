@@ -8,5 +8,6 @@ Manual operations that could be automated.
 - Capture follow-up
 - Capture thought
 
-
 ## Done
+- Push latest code changes
+
