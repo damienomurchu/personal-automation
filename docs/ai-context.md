@@ -19,7 +19,17 @@ This repository contains semantic commands for recurring personal workflows. Ter
 * Keep commands independent of their launch surface.
 * Document command requirements, side effects, and usage in `docs/commands.md`.
 
-## Current command
+## Current commands
+
+`bin/create-raycast-wrapper <script-name>`:
+
+1. Resolves the source command from `~/src/personal/personal-automation/bin`.
+2. Verifies that the source exists and is executable.
+3. Refuses to overwrite an existing entry in `raycast/`.
+4. Generates an executable Raycast wrapper with a title derived from the command name.
+5. Forwards arguments to the source command without duplicating its implementation.
+
+The repository location is currently fixed in the script. Preserve the thin-wrapper and no-overwrite behavior unless asked to change it.
 
 `bin/push-changes`:
 

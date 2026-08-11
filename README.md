@@ -40,8 +40,11 @@ Examples:
 ├── docs/
 │   ├── ai-context.md
 │   └── commands.md
-└── bin/
-    └── push-changes
+├── bin/
+│   ├── create-raycast-wrapper
+│   └── push-changes
+└── raycast/
+    └── generated Raycast wrappers
 ```
 
 See [`docs/commands.md`](docs/commands.md) for command usage and [`docs/ai-context.md`](docs/ai-context.md) for agent context.
@@ -55,6 +58,14 @@ Run commands directly or add `bin/` to `PATH`:
 ```sh
 /path/to/personal-automation/bin/push-changes
 ```
+
+To expose a command from `bin/` in Raycast, generate a thin wrapper for it:
+
+```sh
+bin/create-raycast-wrapper cloud-status
+```
+
+Then add the repository's `raycast/` directory to Raycast's Script Commands search paths.
 
 ## Boundary
 

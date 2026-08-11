@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+BIN_DIR="$HOME/src/personal/personal-automation/bin"
+RAYCAST_DIR="$HOME/src/personal/personal-automation/raycast"
+
+usage() {
+    echo "Usage: $(basename "$0") <script-name>"
+    echo
+    echo "Example:"
+    echo "  $(basename "$0") cloud-status"
+}
+
+if [[ $# -ne 1 ]]; then
+    usage
+    exit 1
+fi
+
+script_name="$(basename "$1")"
+source_script="$BIN_DIR/$script_name"
+wrapper="$RAYCAST_DIR/$script_name"
+
+if [[ ! -f "$source_script" ]]; then
+    echo "Error: script does not exist:"
+    echo "  $source_script"
+    exit 1
+fi
+
+if [[ ! -x "$source_script" ]]; then
+    echo "Error: script is not executable:"
+    echo "  $source_script"
+    echo
+    echo "Run:"
+    echo "  chmod +x \"$source_script\""
+    exit 1
+fi
+
+if [[ -e "$wrapper" ]]; then
+    echo "Error: Raycast wrapper already exists:"
+    echo "  $wrapper"
+    exit 1
+fi
+
+mkdir -p "$RAYCAST_DIR"
+
+# Convert e.g. "cloud-status" -> "Cloud Status"
+title="$(
+    printf '%s\n' "$script_name" |
+        tr '_-' '  ' |
+        awk '{
+            for (i = 1; i <= NF; i++) {
+                $i = toupper(substr($i, 1, 1)) substr($i, 2)
+            }
+            print
+        }'
+)"
+
+cat >"$wrapper" <<EOF
+#!/usr/bin/env bash
+
+# Required parameters:
+# @raycast.schemaVersion 1
+# @raycast.title $title
+# @raycast.mode compact
+
+# Optional parameters:
+# @raycast.packageName Personal Automation
+
+exec "$source_script" "\$@"
+EOF
+
+chmod +x "$wrapper"
+
+echo "Created Raycast wrapper:"
+echo "  $wrapper"
+echo
+echo "Command:"
+echo "  $title"
