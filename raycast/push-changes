@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Required parameters:
+# @raycast.schemaVersion 1
+# @raycast.title Push Changes
+# @raycast.mode compact
+
+# Optional parameters:
+# @raycast.packageName Personal Automation
+
+exec "/Users/me/src/personal/personal-automation/bin/push-changes" "$@"
