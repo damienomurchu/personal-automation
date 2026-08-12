@@ -51,17 +51,57 @@ $diff
 EOF
 )"
 
-commit_message="$(
-    printf '%s' "$prompt" |
-        ollama run "$MODEL" |
-        head -n 1 |
-        sed -e 's/^["`]*//' -e 's/["`]*$//'
-)"
+generate_commit_message() {
+    local output
 
-if [[ -z "$commit_message" ]]; then
-    echo "Failed to generate commit message."
-    exit 1
-fi
+    output="$(printf '%s' "$prompt" | ollama run "$MODEL")" || return 1
+    # The backtick in this single-quoted expression is intentionally literal.
+    # shellcheck disable=SC2016
+    printf '%s\n' "$output" |
+        sed -n -e '1{s/^["`]*//; s/["`]*$//; p;}'
+}
+
+commit_message=""
+
+while [[ -z "$commit_message" ]]; do
+    if generated_message="$(generate_commit_message)" && [[ -n "$generated_message" ]]; then
+        commit_message="$generated_message"
+        break
+    fi
+
+    echo
+    echo "Failed to generate a commit message with Ollama."
+
+    while true; do
+        read -r -p "Retry, enter a message manually, or abort? [r/m/a] " response
+
+        case "$response" in
+            [rR])
+                break
+                ;;
+
+            [mM])
+                read -r -e -p "Commit message: " manual_message
+
+                if [[ -n "$manual_message" ]]; then
+                    commit_message="$manual_message"
+                    break
+                fi
+
+                echo "Commit message cannot be empty."
+                ;;
+
+            [aA])
+                echo "Aborted."
+                exit 1
+                ;;
+
+            *)
+                echo "Enter r, m, or a."
+                ;;
+        esac
+    done
+done
 
 while true; do
     echo

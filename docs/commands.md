@@ -53,6 +53,8 @@ At the confirmation prompt:
 * `e` edits the message
 * `n` exits
 
+If Ollama fails or returns an empty message, the command offers to retry, enter a commit message manually, or abort.
+
 The command reports whether it found an existing staged selection. If it did, unstaged and untracked changes are left untouched. If nothing was staged, `git add -A` stages all changes, including untracked files and deletions. Declining leaves any changes staged by the command in place. A failed rebase or push leaves the local commit in place.
 
 ## Candidates

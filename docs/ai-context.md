@@ -34,7 +34,7 @@ The repository location is currently fixed in the script. Preserve the thin-wrap
 `bin/push-changes`:
 
 1. Preserves an existing staged selection, or runs `git add -A` when nothing is staged, and reports which behavior it chose.
-2. Generates a commit message from the staged diff using local Ollama.
+2. Generates a commit message from the staged diff using local Ollama, with retry, manual-entry, and abort fallbacks if generation fails.
 3. Lets the user accept, edit, or reject the message.
 4. Commits, rebases from `origin/<branch>`, and pushes.
 
