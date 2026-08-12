@@ -17,8 +17,14 @@ if [[ -z "$branch" ]]; then
     exit 1
 fi
 
-# Stage all changes.
-git add -A
+# Preserve an intentional staged selection. If nothing is staged, treat the
+# entire working tree as the selection for this commit.
+if git diff --cached --quiet; then
+    echo "No staged changes found; staging all changes."
+    git add -A
+else
+    echo "Existing staged selection found; leaving unstaged changes untouched."
+fi
 
 if git diff --cached --quiet; then
     echo "No changes to commit."

@@ -35,7 +35,7 @@ The command creates the `raycast/` directory when needed and marks the generated
 
 ### `push-changes`
 
-Stages all changes, generates a commit message with Ollama, asks for confirmation, commits, rebases from `origin`, and pushes the current branch.
+Uses the existing staged selection when present. Otherwise, it stages all changes. It then generates a commit message with Ollama, asks for confirmation, commits, rebases from `origin`, and pushes the current branch.
 
 ```sh
 bin/push-changes
@@ -53,7 +53,7 @@ At the confirmation prompt:
 * `e` edits the message
 * `n` exits
 
-`git add -A` stages all changes, including untracked files and deletions. Declining leaves them staged. A failed rebase or push leaves the local commit in place.
+The command reports whether it found an existing staged selection. If it did, unstaged and untracked changes are left untouched. If nothing was staged, `git add -A` stages all changes, including untracked files and deletions. Declining leaves any changes staged by the command in place. A failed rebase or push leaves the local commit in place.
 
 ## Candidates
 

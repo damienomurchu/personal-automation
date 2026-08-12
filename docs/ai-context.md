@@ -33,12 +33,12 @@ The repository location is currently fixed in the script. Preserve the thin-wrap
 
 `bin/push-changes`:
 
-1. Runs `git add -A` in the current repository.
+1. Preserves an existing staged selection, or runs `git add -A` when nothing is staged, and reports which behavior it chose.
 2. Generates a commit message from the staged diff using local Ollama.
 3. Lets the user accept, edit, or reject the message.
 4. Commits, rebases from `origin/<branch>`, and pushes.
 
-The default model is `qwen2.5-coder:7b`; `GIT_COMMIT_MODEL` overrides it. Preserve the interactive and all-files staging behavior unless asked to change it.
+The default model is `qwen2.5-coder:7b`; `GIT_COMMIT_MODEL` overrides it. Preserve the interactive behavior and the staged-selection-first fallback unless asked to change it.
 
 ## Working guidelines
 
