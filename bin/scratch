@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRATCH_DIR="$HOME/.scratch"
+DATE="$(date '+%Y-%m-%d')"
+TIME="$(date '+%H:%M')"
+FILE="$SCRATCH_DIR/$DATE.md"
+
+mkdir -p "$SCRATCH_DIR"
+
+if [[ ! -f "$FILE" ]]; then
+  printf '# Scratch — %s\n\n' "$DATE" > "$FILE"
+fi
+
+printf '\n## %s\n' "$TIME" >> "$FILE"
+
+open -a "Typora" "$FILE"
