@@ -12,6 +12,6 @@ if [[ ! -f "$FILE" ]]; then
   printf '# Scratch — %s\n\n' "$DATE" > "$FILE"
 fi
 
-printf '\n## %s\n' "$TIME" >> "$FILE"
+printf '\n## %s\n\n' "$TIME" >> "$FILE"
 
 open -a "Typora" "$FILE"
