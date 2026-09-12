@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+  <title>Focus — Left</title>
+
+  <style>
+    :root {
+      --bg: #111315;
+
+      /* Ambient rail colours */
+      --text: #8a9095;
+      --accent: #6f767c;
+      --muted: #5f666c;
+      --faint: #454a4f;
+      --rule: #262a2e;
+
+      /* Used only while actively editing */
+      --active-text: #b8bdc1;
+      --active-heading: #92999f;
+
+      --max-width: 34rem;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    body {
+      font-family:
+        "SFMono-Regular",
+        "SF Mono",
+        "Cascadia Code",
+        "JetBrains Mono",
+        "Roboto Mono",
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    main {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+
+      padding: 2.25rem 1.6rem 1.5rem;
+
+      background:
+        linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.01),
+          transparent 18rem
+        ),
+        var(--bg);
+    }
+
+    .rail {
+      width: 100%;
+      max-width: var(--max-width);
+      flex: 1;
+    }
+
+    .mode {
+      margin: 0 0 2rem;
+
+      color: var(--accent);
+
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    section {
+      margin-bottom: 2rem;
+    }
+
+    .section-heading {
+      margin: 0 0 0.85rem;
+
+      color: var(--accent);
+
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+
+      transition: color 120ms ease;
+    }
+
+    .editable {
+      display: block;
+
+      width: 100%;
+      min-height: 3rem;
+
+      margin: 0;
+      padding: 0;
+
+      resize: none;
+      overflow: hidden;
+
+      border: 0;
+      outline: 0;
+
+      background: transparent;
+      color: var(--text);
+
+      font: inherit;
+      font-size: 0.88rem;
+      line-height: 1.7;
+
+      caret-color: var(--active-text);
+
+      transition: color 120ms ease;
+    }
+
+    .editable::placeholder {
+      color: var(--faint);
+    }
+
+    .editable:focus {
+      color: var(--active-text);
+      outline: none;
+    }
+
+    section:focus-within .section-heading {
+      color: var(--active-heading);
+    }
+
+    .footer {
+      margin-top: auto;
+      padding-top: 1.5rem;
+
+      border-top: 1px solid var(--rule);
+
+      color: var(--faint);
+
+      font-size: 0.72rem;
+      line-height: 1.5;
+    }
+
+    .save-status {
+      float: right;
+    }
+
+    @media (max-width: 520px) {
+      main {
+        padding: 1.6rem 1.2rem 1.2rem;
+      }
+
+      section {
+        margin-bottom: 1.6rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <div class="rail">
+
+      <p class="mode">Build</p>
+
+      <section>
+        <p class="section-heading">What</p>
+
+        <textarea
+          id="what"
+          class="editable"
+          spellcheck="false"
+          placeholder="What am I doing?"
+        ></textarea>
+      </section>
+
+      <section>
+        <p class="section-heading">Why</p>
+
+        <textarea
+          id="why"
+          class="editable"
+          spellcheck="false"
+          placeholder="Why does this matter?"
+        ></textarea>
+      </section>
+
+      <section>
+        <p class="section-heading">Done When</p>
+
+        <textarea
+          id="done"
+          class="editable"
+          spellcheck="false"
+          placeholder="What does done look like?"
+        ></textarea>
+      </section>
+
+      <section>
+        <p class="section-heading">Next</p>
+
+        <textarea
+          id="next"
+          class="editable"
+          spellcheck="false"
+          placeholder="What is the next concrete action?"
+        ></textarea>
+      </section>
+
+    </div>
+
+    <div class="footer">
+      ~/focus/context
+
+      <span
+        class="save-status"
+        id="save-status"
+      >
+        saved locally
+      </span>
+    </div>
+  </main>
+
+  <script>
+    const fields = [
+      "what",
+      "why",
+      "done",
+      "next"
+    ];
+
+    const saveStatus =
+      document.getElementById("save-status");
+
+    let saveTimer;
+
+    function autoResize(element) {
+      element.style.height = "auto";
+      element.style.height =
+        `${element.scrollHeight}px`;
+    }
+
+    fields.forEach(name => {
+      const element =
+        document.getElementById(name);
+
+      const saved =
+        localStorage.getItem(
+          `focus-rail-${name}`
+        );
+
+      if (saved !== null) {
+        element.value = saved;
+      }
+
+      autoResize(element);
+
+      element.addEventListener(
+        "input",
+        () => {
+          autoResize(element);
+
+          saveStatus.textContent =
+            "saving…";
+
+          clearTimeout(saveTimer);
+
+          saveTimer = setTimeout(() => {
+            localStorage.setItem(
+              `focus-rail-${name}`,
+              element.value
+            );
+
+            saveStatus.textContent =
+              "saved locally";
+          }, 250);
+        }
+      );
+    });
+  </script>
+</body>
+</html>

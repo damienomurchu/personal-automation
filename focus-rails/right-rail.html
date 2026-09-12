@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+  <title>Focus — Right</title>
+
+  <style>
+    :root {
+      --bg: #111315;
+
+      /* Ambient rail colours */
+      --text: #8a9095;
+      --accent: #6f767c;
+      --muted: #5f666c;
+      --faint: #454a4f;
+      --rule: #262a2e;
+
+      /* Used only while actively editing */
+      --active-text: #b8bdc1;
+      --active-heading: #92999f;
+
+      --button-hover: #1b1f23;
+      --max-width: 34rem;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    body {
+      font-family:
+        "SFMono-Regular",
+        "SF Mono",
+        "Cascadia Code",
+        "JetBrains Mono",
+        "Roboto Mono",
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    main {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+
+      padding: 2.25rem 1.6rem 1.5rem;
+
+      background:
+        linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.01),
+          transparent 18rem
+        ),
+        var(--bg);
+    }
+
+    .rail {
+      width: 100%;
+      max-width: var(--max-width);
+
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    /* ---------- Timer ---------- */
+
+    .focus-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+
+      gap: 1rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .eyebrow {
+      margin: 0;
+
+      color: var(--accent);
+
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .timer {
+      margin: 0;
+
+      color: var(--muted);
+
+      font-size: 1.05rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer-controls {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.8rem;
+    }
+
+    button {
+      padding: 0.4rem 0.65rem;
+
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+
+      background: transparent;
+      color: var(--faint);
+
+      font: inherit;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+
+      cursor: pointer;
+
+      transition:
+        color 120ms ease,
+        background 120ms ease,
+        border-color 120ms ease;
+    }
+
+    button:hover {
+      color: var(--muted);
+      background: var(--button-hover);
+      border-color: var(--faint);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    .rule {
+      height: 1px;
+      margin: 0 0 1.8rem;
+      background: var(--rule);
+    }
+
+    /* ---------- Scratch ---------- */
+
+    .scratch-section {
+      display: flex;
+      flex-direction: column;
+
+      flex: 1;
+      min-height: 0;
+    }
+
+    .scratch-heading {
+      margin: 0 0 0.9rem;
+
+      color: var(--accent);
+
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+
+      transition: color 120ms ease;
+    }
+
+    .scratch {
+      width: 100%;
+
+      flex: 1;
+      min-height: 16rem;
+
+      resize: none;
+
+      margin: 0;
+      padding: 0;
+
+      border: 0;
+      outline: 0;
+
+      background: transparent;
+      color: var(--text);
+
+      font: inherit;
+      font-size: 0.88rem;
+      line-height: 1.7;
+
+      caret-color: var(--active-text);
+
+      transition: color 120ms ease;
+    }
+
+    .scratch::placeholder {
+      color: var(--faint);
+    }
+
+    .scratch:focus {
+      color: var(--active-text);
+      outline: none;
+    }
+
+    .scratch-section:focus-within
+    .scratch-heading {
+      color: var(--active-heading);
+    }
+
+    /* ---------- Footer ---------- */
+
+    .footer {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+
+      border-top: 1px solid var(--rule);
+
+      color: var(--faint);
+
+      font-size: 0.72rem;
+      line-height: 1.5;
+    }
+
+    .save-status {
+      float: right;
+    }
+
+    @media (max-width: 520px) {
+      main {
+        padding: 1.6rem 1.2rem 1.2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <div class="rail">
+
+      <div class="focus-header">
+        <p class="eyebrow">Focus</p>
+        <p class="timer" id="timer">
+          00:00:00
+        </p>
+      </div>
+
+      <div class="timer-controls">
+        <button
+          id="start-button"
+          type="button"
+        >
+          Start
+        </button>
+
+        <button
+          id="pause-button"
+          type="button"
+        >
+          Pause
+        </button>
+
+        <button
+          id="reset-button"
+          type="button"
+        >
+          Reset
+        </button>
+      </div>
+
+      <div class="rule"></div>
+
+      <section class="scratch-section">
+        <p class="scratch-heading">
+          Scratch
+        </p>
+
+        <textarea
+          id="scratch"
+          class="scratch"
+          spellcheck="false"
+          placeholder="Stray thoughts, commands, hypotheses, things to check…"
+        ></textarea>
+      </section>
+
+    </div>
+
+    <div class="footer">
+      ~/focus/scratch
+
+      <span
+        class="save-status"
+        id="save-status"
+      >
+        saved locally
+      </span>
+    </div>
+  </main>
+
+  <script>
+    /*
+     * Scratch pad
+     */
+
+    const SCRATCH_STORAGE_KEY =
+      "focus-rail-scratch";
+
+    const scratch =
+      document.getElementById("scratch");
+
+    const saveStatus =
+      document.getElementById(
+        "save-status"
+      );
+
+    const existingScratch =
+      localStorage.getItem(
+        SCRATCH_STORAGE_KEY
+      );
+
+    if (existingScratch !== null) {
+      scratch.value = existingScratch;
+    }
+
+    let saveTimer;
+
+    scratch.addEventListener(
+      "input",
+      () => {
+        saveStatus.textContent =
+          "saving…";
+
+        clearTimeout(saveTimer);
+
+        saveTimer = setTimeout(() => {
+          localStorage.setItem(
+            SCRATCH_STORAGE_KEY,
+            scratch.value
+          );
+
+          saveStatus.textContent =
+            "saved locally";
+        }, 250);
+      }
+    );
+
+
+    /*
+     * Count-up timer
+     */
+
+    const TIMER_STORAGE_KEY =
+      "focus-rail-timer";
+
+    const timerDisplay =
+      document.getElementById("timer");
+
+    const startButton =
+      document.getElementById(
+        "start-button"
+      );
+
+    const pauseButton =
+      document.getElementById(
+        "pause-button"
+      );
+
+    const resetButton =
+      document.getElementById(
+        "reset-button"
+      );
+
+    let timerState = {
+      elapsedMs: 0,
+      startedAt: null,
+      running: false
+    };
+
+    const storedTimer =
+      localStorage.getItem(
+        TIMER_STORAGE_KEY
+      );
+
+    if (storedTimer) {
+      try {
+        timerState = {
+          ...timerState,
+          ...JSON.parse(storedTimer)
+        };
+      } catch {
+        localStorage.removeItem(
+          TIMER_STORAGE_KEY
+        );
+      }
+    }
+
+    function saveTimerState() {
+      localStorage.setItem(
+        TIMER_STORAGE_KEY,
+        JSON.stringify(timerState)
+      );
+    }
+
+    function getElapsedMilliseconds() {
+      if (!timerState.running) {
+        return timerState.elapsedMs;
+      }
+
+      return (
+        timerState.elapsedMs +
+        (Date.now() - timerState.startedAt)
+      );
+    }
+
+    function formatDuration(
+      milliseconds
+    ) {
+      const totalSeconds =
+        Math.floor(milliseconds / 1000);
+
+      const hours =
+        Math.floor(
+          totalSeconds / 3600
+        );
+
+      const minutes =
+        Math.floor(
+          (totalSeconds % 3600) / 60
+        );
+
+      const seconds =
+        totalSeconds % 60;
+
+      return [
+        hours,
+        minutes,
+        seconds
+      ]
+        .map(value =>
+          String(value).padStart(2, "0")
+        )
+        .join(":");
+    }
+
+    function renderTimer() {
+      timerDisplay.textContent =
+        formatDuration(
+          getElapsedMilliseconds()
+        );
+
+      startButton.disabled =
+        timerState.running;
+
+      pauseButton.disabled =
+        !timerState.running;
+    }
+
+    function startTimer() {
+      if (timerState.running) {
+        return;
+      }
+
+      timerState.startedAt =
+        Date.now();
+
+      timerState.running = true;
+
+      saveTimerState();
+      renderTimer();
+    }
+
+    function pauseTimer() {
+      if (!timerState.running) {
+        return;
+      }
+
+      timerState.elapsedMs =
+        getElapsedMilliseconds();
+
+      timerState.startedAt = null;
+      timerState.running = false;
+
+      saveTimerState();
+      renderTimer();
+    }
+
+    function resetTimer() {
+      timerState = {
+        elapsedMs: 0,
+        startedAt: null,
+        running: false
+      };
+
+      saveTimerState();
+      renderTimer();
+    }
+
+    startButton.addEventListener(
+      "click",
+      startTimer
+    );
+
+    pauseButton.addEventListener(
+      "click",
+      pauseTimer
+    );
+
+    resetButton.addEventListener(
+      "click",
+      resetTimer
+    );
+
+    /*
+     * Timestamp-derived rather than incrementing
+     * seconds, so background browser throttling
+     * doesn't make the timer drift.
+     */
+
+    setInterval(
+      renderTimer,
+      250
+    );
+
+    renderTimer();
+
+    /*
+     * Cmd+L focuses the scratch pad.
+     */
+
+    document.addEventListener(
+      "keydown",
+      event => {
+        if (
+          event.metaKey &&
+          event.key.toLowerCase() === "l"
+        ) {
+          event.preventDefault();
+          scratch.focus();
+        }
+      }
+    );
+  </script>
+</body>
+</html>
